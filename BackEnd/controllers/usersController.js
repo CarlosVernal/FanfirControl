@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const e = require("express");
 
 exports.createUser = async (request, response, next) => {
   try {
@@ -53,24 +54,71 @@ exports.createUser = async (request, response, next) => {
   }
 };
 
-// exports.getAllUsers = async (request, response, next) => {
-//   try {
-//     //get {name,blogs:{title}}
-//     const users = await User.find({}).select("name blogs").populate("blogs", {
-//       title: 1,
-//     });
-//     response.status(200).json(users); //found all users
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+exports.getUsers = async (req, res, next) => {
+  try {
+    const users = await User.find({});
+    res.status(200).json(users);
+  } catch (error) {
+    next(error);
+  }
+};
 
-// Example of how to export a function
-// // exports.SomeFuncion = async (request, response, next) => {
-//     try {
+exports.updateUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { email, name, password } = req.body;
 
-//     }
-//     catch(error){
-//         next(error)
-//     }
-// }
+    // Validate request body
+    if (!email && !name && !password) {
+      return res.status(400).json({ error: "No fields to update" });
+    }
+
+    // Find user by ID
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Update user fields
+    if (email) user.email = email.toLowerCase();
+    if (name) user.name = name;
+    if (password) user.passwordHash = bcrypt.hashSync(password, 10);
+
+    // Save updated user
+    const updatedUser = await user.save();
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    if (!deletedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getUserById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};

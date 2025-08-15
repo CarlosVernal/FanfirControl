@@ -8,6 +8,10 @@ const { errorHandler, unknownEndpoint } = require("./middleware/errorHandler");
 //import routes
 const authRouter = require("./routes/auth");
 const usersRouter = require("./routes/users");
+const budgetsRouter = require("./routes/budgets");
+const categoryRouter = require("./routes/category");
+const mountsReportRouter = require("./routes/mountReports");
+const transactionRouter = require("./routes/transactions");
 
 // use express to create a server
 const app = express();
@@ -19,6 +23,10 @@ app.use(express.json());
 // use routes
 app.use("/api", authRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/budgets", budgetsRouter);
+app.use("/api/category", categoryRouter);
+app.use("/api/mounts", mountsReportRouter);
+app.use("/api/transactions", transactionRouter);
 
 //testing routes in test environment
 if (process.env.NODE_ENV === "test") {
