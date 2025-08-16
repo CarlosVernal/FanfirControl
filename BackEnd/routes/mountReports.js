@@ -1,6 +1,6 @@
 const express = require("express")
 const router = express.Router()
-const mrc = require("../controllers/mountReportConroler")
+const mrc = require("../controllers/mountReportConroller")
 
 //middleware
 const tokenExtractor = require("../middleware/tokenExtractor")

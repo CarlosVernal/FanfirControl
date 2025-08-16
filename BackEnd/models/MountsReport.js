@@ -7,6 +7,7 @@ const MountsReportSchema = new Schema({
   year: { type: Number, required: true },
   totalIncome: { type: Number, default: 0 },
   totalExpense: { type: Number, default: 0 },
+  margin: { type: Number, default: 0 }, // Calculated as totalIncome - totalExpense
   budgetId: { type: Schema.Types.ObjectId, ref: 'Budget', required: true }, // Presupuesto usado
   createdAt: { type: Date, default: Date.now }
 });

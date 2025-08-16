@@ -9,18 +9,18 @@ exports.loginUser = async (request, response, next) => {
         return response.status(400).json({ error: "email and password required" });
     }
 
-    //check the password if the user exists
-    const passwordCorrect =
-        user === null ? false : await bcrypt.compare(password, user.passwordHash);
+    const user = await User.findOne({ email });
+
+    const passwordCorrect = user === null ? false : await bcrypt.compare(password, user.passwordHash);
 
     //check if the user exists and the password is correct
     if (!(user && passwordCorrect)) {
-        return response.status(401).json({ error: "invalid email or password" });
+        return response.status(401).json({ error: "invalid email or password" });    
     }
 
     //create a token with the user id and the secret key
-    const userForToken = {
-        email: user.email,
+    const userForToken = {  
+        email: user.email,   
         id: user._id,
     };
     //the token will expire in 1 hour

@@ -2,42 +2,48 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const e = require("express");
 
-exports.createUser = async (request, response, next) => {
-  try {
-    const { email, name, password } = request.body; //destructuring the request body
+  exports.createUser = async (request, response, next) => {
+    try {
+      const { email, name, password } = request.body; //destructuring the request body
 
-    //check if any of the fields are empty
-    if (!email || !name || !password) {
-      return response
-        .status(400)
-        .json({ error: "missing email, name or password" }); //check if the request body is empty or partially filled
-    }
-    //name is optional, but if exist need to be valid
-    if (name && !/^(?!\s)(?!.*\s$)[a-zA-Z][a-zA-Z0-9_-\s]{4,14}$/.test(name)) {
-      //no space at the beginning or end, no special characters, start with a letter then letters, numvers or - or _ and space in the middle, large between 5 and 15 characters
-      return response.status(400).json({ error: "name is not valid" });
-    }
-    //check if the email is valid
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return response.status(400).json({ error: "email is not valid" });
-    }
-    //check password length and complexity
-    if (password.length < 3 || password.length > 20) {
-      //large between 3 and 20 characters
-      return response
-        .status(400)
-        .json({ error: "password must be between 3 and 20 characters long" });
-    }
-    if (!/(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/.test(password)) {
-      //at least one uppercase letter, one number, and one special character
-      return response.status(400).json({
-        error:
-          "password must contain at least one uppercase letter, one number, and one special character",
-      });
-    }
+      //check if any of the fields are empty
+      if (!email || !name || !password) {
+        return response
+          .status(400)
+          .json({ error: "missing email, name or password" }); //check if the request body is empty or partially filled
+      }
+      //name is optional, but if exist need to be valid
+      if (name && !/^(?!\s)(?!.*\s$)[a-zA-Z][a-zA-Z0-9_-\s]{4,14}$/.test(name)) {
+        //no space at the beginning or end, no special characters, start with a letter then letters, numvers or - or _ and space in the middle, large between 5 and 15 characters
+        return response.status(400).json({ error: "name is not valid" });
+      }
+      //check if the email is valid
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return response.status(400).json({ error: "email is not valid" });
+      }
+      //check password length and complexity
+      if (password.length < 3 || password.length > 20) {
+        //large between 3 and 20 characters
+        return response
+          .status(400)
+          .json({ error: "password must be between 3 and 20 characters long" });
+      }
+      if (!/(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/.test(password)) {
+        //at least one uppercase letter, one number, and one special character
+        return response.status(400).json({
+          error:
+            "password must contain at least one uppercase letter, one number, and one special character",
+        });
+      }
     //preparation for the encryptation of the password
     const saltRounds = 10;
     const passwordHash = bcrypt.hashSync(password, saltRounds);
+
+    // Check if the email is already registered
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return response.status(409).json({ error: "Email already registered" });
+    }
 
     //create a new user
     const user = new User({

@@ -1,4 +1,4 @@
-require("../models/Transaction")
+const Transaction = require("../models/Transaction")
 
 exports.createTransaction = async (req, res, next) => {
     try {
