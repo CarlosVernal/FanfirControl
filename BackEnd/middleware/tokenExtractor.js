@@ -1,6 +1,5 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
-
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
 const tokenExtractor = async (request, response, next) => {
   const authorization = request.get("authorization");
@@ -30,4 +29,4 @@ const tokenExtractor = async (request, response, next) => {
   }
 };
 
-module.exports = tokenExtractor;
+export default tokenExtractor;

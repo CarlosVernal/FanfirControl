@@ -1,17 +1,17 @@
-const bcrypt = require("bcryptjs");
-const User = require("../models/User");
+import bcrypt from "bcryptjs";
+import User from "../models/User.js";
 
 //Esta funcion sera implementada cuando exista el rol de administrador
-// exports.getUsers = async (req, res, next) => {
+// export async function getUsers(req, res, next) {
 //   try {
 //     const users = await User.find({});
 //     res.status(200).json(users);
 //   } catch (error) {
 //     next(error);
 //   }
-// };
+// }
 
-exports.updateUser = async (req, res, next) => {
+export async function updateUser(req, res, next) {
   try {
     const { id } = req.params;
     const { name, password } = req.body;
@@ -41,9 +41,9 @@ exports.updateUser = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
+}
 
-exports.deleteUser = async (req, res, next) => {
+export async function deleteUser(req, res, next) {
   try {
     const { id } = req.params;
 
@@ -62,9 +62,9 @@ exports.deleteUser = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
+}
 
-exports.getUserById = async (req, res, next) => {
+export async function getUserById(req, res, next) {
   try {
     const { id } = req.params;
 
@@ -81,4 +81,4 @@ exports.getUserById = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
+}

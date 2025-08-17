@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const SavingGoalSchema = new Schema({
@@ -12,4 +12,4 @@ const SavingGoalSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('SavingGoal', SavingGoalSchema);
+export default mongoose.model('SavingGoal', SavingGoalSchema);

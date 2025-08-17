@@ -1,8 +1,8 @@
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-const User = require("../models/User");
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import User from "../models/User.js";
 
-exports.loginUser = async (request, response, next) => {
+export async function loginUser(request, response, next) {
     try {
         const { email, password } = request.body;
         if (!email || !password) {
@@ -38,7 +38,7 @@ exports.loginUser = async (request, response, next) => {
     }
 }
 
-exports.registerUser = async (req, res, next) => {
+export async function registerUser(req, res, next) {
     try {
         const { email, name, password } = req.body;
         if (!email || !password) {
@@ -66,7 +66,7 @@ exports.registerUser = async (req, res, next) => {
     }
 };
 
-exports.verifyEmail = async (req, res, next) => {
+export async function verifyEmail(req, res, next) {
     try {
         const { token } = req.query;
         const decoded = jwt.verify(token, process.env.SECRET);
@@ -84,7 +84,7 @@ exports.verifyEmail = async (req, res, next) => {
     }
 };
 
-exports.forgotPassword = async (req, res, next) => {
+export async function forgotPassword(req, res, next) {
     try {
         const { email } = req.body;
         const user = await User.findOne({ email });
@@ -102,7 +102,7 @@ exports.forgotPassword = async (req, res, next) => {
     }
 }
 
-exports.resetPassword = async (req, res, next) => {
+export async function resetPassword(req, res, next) {
     try {
         const { token, newPassword } = req.body;
         const decoded = jwt.verify(token, process.env.SECRET);
@@ -121,7 +121,7 @@ exports.resetPassword = async (req, res, next) => {
     }
 };
 
-exports.resendVerificationEmail = async (req, res, next) => {
+export async function resendVerificationEmail(req, res, next) {
     try {
         const { email } = req.body;
         const user = await User.findOne({ email });

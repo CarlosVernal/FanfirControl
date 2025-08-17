@@ -1,7 +1,7 @@
-const MountsReport = require('../models/MountsReport');
-const Budget = require('../models/Budget');
+import MountsReport from '../models/MountsReport.js';
+import Budget from '../models/Budget.js';
 
-exports.createMonthlyReport = async (req, res, next) => {
+export async function createMonthlyReport(req, res, next) {
   try {
     const { userId, month, year, totalIncome, totalExpense } = req.body;
 
@@ -37,7 +37,7 @@ exports.createMonthlyReport = async (req, res, next) => {
   }
 };
 
-exports.getMountsReportsByUser = async (req, res, next) => {
+export async function getMountsReportsByUser(req, res, next) {
   try {
     const { userId } = req.params;
 
@@ -54,7 +54,7 @@ exports.getMountsReportsByUser = async (req, res, next) => {
   }
 };
 
-exports.getMountsReportsByDate = async (req, res, next) => {
+export async function getMountsReportsByDate(req, res, next) {
   try {
     const { userId } = req.params;
     const { startDate, endDate } = req.query;
@@ -75,7 +75,7 @@ exports.getMountsReportsByDate = async (req, res, next) => {
   }
 };
 
-exports.getMountsReportsByMargin = async (req, res, next) => {
+export async function getMountsReportsByMargin(req, res, next) {
   try {
     const { userId } = req.params;
     const { minMargin, maxMargin } = req.query;
@@ -96,7 +96,7 @@ exports.getMountsReportsByMargin = async (req, res, next) => {
   }
 };
 
-exports.deleteMountsReport = async (req, res, next) => {
+export async function deleteMountsReport(req, res, next) {
   try {
     const { id } = req.params;
 
@@ -113,7 +113,7 @@ exports.deleteMountsReport = async (req, res, next) => {
   }
 };
 
-exports.getPositiveMountsReports = async (req, res, next) => {
+export async function getPositiveMountsReports(req, res, next) {
   try {
     const { userId } = req.params;
 
@@ -133,7 +133,7 @@ exports.getPositiveMountsReports = async (req, res, next) => {
   }
 };
 
-exports.getNegativeMountsReports = async (req, res, next) => {
+export async function getNegativeMountsReports(req, res, next) {
   try {
     const { userId } = req.params;
 

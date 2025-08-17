@@ -1,7 +1,7 @@
-const Budget = require('../models/Budget');
+import Budget from '../models/Budget.js';
 
 // Crear un nuevo presupuesto (desactiva el anterior si existe para ese mes/año/usuario)
-exports.createBudget = async (req, res, next) => {
+export async function createBudget(req, res, next) {
   try {
     const { userId, month, year, expectedIncome, expectedExpense } = req.body;
     if (!userId || !month || !year) {
@@ -28,20 +28,20 @@ exports.createBudget = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
+}
 
 // Obtener todos los presupuestos
-exports.getBudgets = async (req, res, next) => {
+export async function getBudgets(req, res, next) {
   try {
     const budgets = await Budget.find({});
     res.status(200).json(budgets);
   } catch (error) {
     next(error);
   }
-};
+}
 
 // Obtener presupuesto por ID
-exports.getBudgetById = async (req, res, next) => {
+export async function getBudgetById(req, res, next) {
   try {
     const budget = await Budget.findById(req.params.id);
     if (!budget) {
@@ -51,10 +51,10 @@ exports.getBudgetById = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
+}
 
 // Modificar un presupuesto -> crea uno nuevo y desactiva el anterior
-exports.updateBudget = async (req, res, next) => {
+export async function updateBudget(req, res, next) {
   try {
     const oldBudget = await Budget.findById(req.params.id);
     if (!oldBudget) {
@@ -80,10 +80,10 @@ exports.updateBudget = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
+}
 
 // Eliminar presupuesto (solo lo borra de la base)
-exports.deleteBudget = async (req, res, next) => {
+export async function deleteBudget(req, res, next) {
   try {
     const deletedBudget = await Budget.findByIdAndDelete(req.params.id);
     if (!deletedBudget) {
@@ -93,10 +93,10 @@ exports.deleteBudget = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
+}
 
 // Activar un presupuesto antiguo y desactivar el actual
-exports.activateOldBudget = async (req, res, next) => {
+export async function activateOldBudget(req, res, next) {
   try {
     const budget = await Budget.findById(req.params.id);
     if (!budget) {
@@ -117,4 +117,4 @@ exports.activateOldBudget = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
+}

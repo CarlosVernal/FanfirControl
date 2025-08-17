@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const MountsReportSchema = new Schema({
@@ -12,4 +12,4 @@ const MountsReportSchema = new Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('MountsReport', MountsReportSchema);
+export default mongoose.model('MountsReport', MountsReportSchema);

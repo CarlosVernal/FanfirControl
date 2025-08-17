@@ -1,6 +1,6 @@
-const SavingGoal = require("../models/SavingGoal");
+import SavingGoal from "../models/SavingGoal.js";
 
-exports.createSavingGoal = async (req, res, next) => {
+export async function createSavingGoal(req, res, next) {
     try {
         const { userId, name, targetAmount, currentAmount, dueDate } = req.body;
         if (!userId || !name || !targetAmount || !dueDate) {
@@ -18,4 +18,4 @@ exports.createSavingGoal = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-};
+}

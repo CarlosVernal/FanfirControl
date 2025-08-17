@@ -1,10 +1,11 @@
-const express = require("express")
-const cc = require("../controllers/CategoryController")
-const router = express.Router()
+import express from "express";
+import * as cc from "../controllers/CategoryController.js";
+import tokenExtractor from "../middleware/tokenExtractor.js";
+
+const router = express.Router();
 
 //middleware
-const tokenExtractor = require("../middleware/tokenExtractor")
-router.use(tokenExtractor)
+router.use(tokenExtractor);
 
 router.post("/", cc.createCategory);
 router.get("/", cc.getCategories);
@@ -14,4 +15,4 @@ router.delete("/:id", cc.deleteCategory);
 router.get("/user/:userId", cc.getCategoriesByUserId);
 router.get("/parent/:parentCategoryId", cc.getCategoriesByParentCategoryId);
 
-module.exports = router
+export default router;

@@ -1,7 +1,7 @@
-const Category = require("../models/Category");
-const User = require("../models/User");
+import Category from "../models/Category.js";
+import User from "../models/User.js";
 
-exports.createCategory = async (req, res, next) => {
+export async function createCategory(req, res, next) {
     try {
         const { userId, name, parentCategoryId } = req.body;
         if (!userId || !name) {
@@ -29,7 +29,7 @@ exports.createCategory = async (req, res, next) => {
     }
 };
 
-exports.deleteCategory = async (req, res, next) => {
+export async function deleteCategory(req, res, next) {
     try {
         const deletedCategory = await Category.findByIdAndDelete(req.params.id);
         if (!deletedCategory) {
@@ -41,7 +41,7 @@ exports.deleteCategory = async (req, res, next) => {
     }
 };
 
-exports.updateCategory = async (req, res, next) => {
+export async function updateCategory(req, res, next) {
     try {
         const updatedCategory = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!updatedCategory) {
@@ -53,7 +53,7 @@ exports.updateCategory = async (req, res, next) => {
     }
 };
 
-exports.getCategories = async (req, res, next) => {
+export async function getCategories(req, res, next) {
     try {
         const categories = await Category.find({});
         res.status(200).json(categories);
@@ -62,7 +62,7 @@ exports.getCategories = async (req, res, next) => {
     }
 };
 
-exports.getCategoryById = async (req, res, next) => {
+export async function getCategoryById(req, res, next) {
     try {
         const category = await Category.findById(req.params.id);
         if (!category) {
@@ -73,7 +73,8 @@ exports.getCategoryById = async (req, res, next) => {
         next(error);
     }
 };
-exports.getCategoriesByUserId = async (req, res, next) => {
+
+export async function getCategoriesByUserId(req, res, next) {
     try {
         if (!req.params.userId) {
             return res.status(400).json({ error: "userId es requerido" });
@@ -89,7 +90,7 @@ exports.getCategoriesByUserId = async (req, res, next) => {
     }
 };
 
-exports.getCategoriesByParentCategoryId = async (req, res, next) => {
+export async function getCategoriesByParentCategoryId(req, res, next) {
     try {
         if (!req.params.parentCategoryId) {
             return res.status(400).json({ error: "parentCategoryId es requerido" });

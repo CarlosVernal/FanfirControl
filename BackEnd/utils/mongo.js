@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
-const config = require("./config");
+import mongoose from "mongoose";
+import { MONGODB_URI } from "./config.js";
 
-const mongoUrl = config.MONGODB_URI;
+const mongoUrl = MONGODB_URI;
 const connectToMongo  = async () => {
   //promises
   try {
@@ -19,4 +19,4 @@ const closeMongoConnection = async () => {
   console.log("Conexión a MongoDB cerrada");
 };
 
-module.exports = { connectToMongo , closeMongoConnection };
+export { connectToMongo, closeMongoConnection };

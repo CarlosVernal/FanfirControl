@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const BudgetSchema = new Schema({
@@ -11,4 +11,4 @@ const BudgetSchema = new Schema({
   isActive: { type: Boolean, default: true }
 });
 
-module.exports = mongoose.model('Budget', BudgetSchema);
+export default mongoose.model('Budget', BudgetSchema);

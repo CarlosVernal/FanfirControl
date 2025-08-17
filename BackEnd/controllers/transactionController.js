@@ -1,6 +1,6 @@
-const Transaction = require("../models/Transaction")
+import Transaction from "../models/Transaction.js";
 
-exports.createTransaction = async (req, res, next) => {
+export async function createTransaction(req, res, next) {
     try {
         const { userId, description, amount, date, categories, isRecurrent, recurrenceFrequency, installments } = req.body;
         if (!userId || !description || !amount || !date) {
@@ -23,7 +23,7 @@ exports.createTransaction = async (req, res, next) => {
     }
 };
 
-exports.getTransactions = async (req, res, next) => {
+export async function getTransactions(req, res, next) {
     try {
         const transactions = await Transaction.find({ userId: req.userId });
         res.status(200).json(transactions);
@@ -32,7 +32,7 @@ exports.getTransactions = async (req, res, next) => {
     }
 };
 
-exports.getTransactionById = async (req, res, next) => {
+export async function getTransactionById(req, res, next) {
     try {
         const transaction = await Transaction.findOne({ _id: req.params.id, userId: req.userId });
         if (!transaction) {
@@ -44,7 +44,7 @@ exports.getTransactionById = async (req, res, next) => {
     }
 };
 
-exports.getTransactionInRange = async (req, res, next) => {
+export async function getTransactionInRange(req, res, next) {
     try {
         const { startDate, endDate } = req.query;
         const transactions = await Transaction.find({
@@ -57,7 +57,7 @@ exports.getTransactionInRange = async (req, res, next) => {
     }
 };
 
-exports.updateTransaction = async (req, res, next) => {
+export async function updateTransaction(req, res, next) {
     try {
         const { description, amount, date, categories, isRecurrent, recurrenceFrequency, installments } = req.body;
         const transaction = await Transaction.findOneAndUpdate(
@@ -74,7 +74,7 @@ exports.updateTransaction = async (req, res, next) => {
     }
 };
 
-exports.deleteTransaction = async (req, res, next) => {
+export async function deleteTransaction(req, res, next) {
     try {
         const transaction = await Transaction.findOneAndDelete({ _id: req.params.id, userId: req.userId });
         if (!transaction) {

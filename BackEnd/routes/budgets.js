@@ -1,9 +1,10 @@
-const express = require("express");
-const bg = require("../controllers/budgetsController");
+import express from "express";
+import * as bg from "../controllers/budgetsController.js";
+import tokenExtractor from "../middleware/tokenExtractor.js";
+
 const router = express.Router();
 
 //middleware
-const tokenExtractor = require("../middleware/tokenExtractor");
 router.use(tokenExtractor);
 
 router.post("/", bg.createBudget);
@@ -12,4 +13,4 @@ router.get("/:id", bg.getBudgetById);
 router.put("/:id", bg.updateBudget);
 router.delete("/:id", bg.deleteBudget);
 
-module.exports = router;
+export default router;

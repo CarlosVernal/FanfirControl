@@ -1,18 +1,18 @@
-require("dotenv").config(); // get enviroment variables
+import "dotenv/config"; // get enviroment variables
 
 // import frameworks and libraries
-const express = require("express");
-const rateLimit = require("express-rate-limit");
-const cors = require("cors");
-const { errorHandler, unknownEndpoint } = require("./middleware/errorHandler");
+import express from "express";
+import rateLimit from "express-rate-limit";
+import cors from "cors";
+import { errorHandler, unknownEndpoint } from "./middleware/errorHandler.js";
 
-//import routes
-const authRouter = require("./routes/auth");
-const usersRouter = require("./routes/users");
-const budgetsRouter = require("./routes/budgets");
-const categoryRouter = require("./routes/categorys");
-const mountsReportRouter = require("./routes/mountReports");
-const transactionRouter = require("./routes/transactions");
+// import routes
+import authRouter from "./routes/auth.js";
+import usersRouter from "./routes/users.js";
+import budgetsRouter from "./routes/budgets.js";
+import categoryRouter from "./routes/categorys.js";
+import mountsReportRouter from "./routes/mountReports.js";
+import transactionRouter from "./routes/transactions.js";
 
 // use express to create a server
 const app = express();
@@ -27,7 +27,6 @@ app.use(rateLimit({
     message: "Too many requests, please try again later."
 }));
 
-
 // use routes
 app.use("/api", authRouter);
 app.use("/api/users", usersRouter);
@@ -38,7 +37,7 @@ app.use("/api/transactions", transactionRouter);
 
 //testing routes in test environment
 if (process.env.NODE_ENV === "test") {
-    const testingRouter = require("./routes/testing");
+    const { default: testingRouter } = await import("./routes/testing.js");
     console.log(process.env.NODE_ENV, "enviroment enabled");
     app.use("/api/testing", testingRouter);
 }
@@ -48,4 +47,4 @@ app.use(errorHandler);
 app.use(unknownEndpoint);
 
 // export the app for testing
-module.exports = app;
+export default app;
