@@ -1,13 +1,14 @@
 const express = require('express');
-const authController = require('../controllers/authController');
+const aC = require('../controllers/authControllers');
 const router = express.Router();
-
+const aV = require("../validations/authValidations")
 //To do: use express-validator for input validation
 
-router.post('/login', authController.loginUser);
-router.post('/register', authController.registerUser);
-router.post('/verify-email', authController.verifyEmail);
-router.post('/forgot-password', authController.forgotPassword);
-router.post('/reset-password', authController.resetPassword);
+router.post('/login', aV.loginValidation, aC.loginUser);
+router.post('/register', aV.registerValidation, aC.registerUser);
+router.post('/verify-email', aV.verifyEmailValidation, aC.verifyEmail);
+router.post('/forgot-password', aV.forgotPasswordValidation, aC.forgotPassword);
+router.post('/reset-password', aV.resetPasswordValidation, aC.resetPassword);
+router.post('/resend-verification-email', aV.resendVerificationEmailValidation, aC.resendVerificationEmail);
 
 module.exports = router;
