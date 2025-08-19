@@ -1,14 +1,14 @@
 // set the enviroment to development,test or production
-const config = require("./utils/config");
+import * as config from "./utils/config.js";
 
-//import local modules
-const { connectToMongo } = require("./utils/mongo");
+// import local modules
+import { connectToMongo } from "./utils/mongo.js";
 
 // import app
-const app = require("./app");
+import app from "./app.js";
 
 // import http module
-const http = require("http");
+import http from "http";
 const server = http.createServer(app);
 
 // run the server
