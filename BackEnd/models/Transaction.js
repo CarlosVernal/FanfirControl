@@ -6,7 +6,7 @@ const TransactionSchema = new Schema({
   description: { type: String, required: true },
   amount: { type: Number, required: true }, // ingresos +, gastos -
   date: { type: Date, required: true },
-  categories: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
+  categories: { type: Schema.Types.ObjectId, ref: 'Category', default: null },
   isRecurrent: { type: Boolean, default: false },
   recurrenceFrequency: { type: String, enum: ['monthly', 'yearly', null], default: null },
   installments: { type: Number, default: 1 },
