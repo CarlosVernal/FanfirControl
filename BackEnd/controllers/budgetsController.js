@@ -5,7 +5,7 @@ export async function createBudget(req, res, next) {
   try {
     const { month, year, expectedIncome, expectedExpense, description } = req.body;
     const lowDescription = description.toLowerCase();
-    const userId = req.user.id; // El id lo entrega el tokenextractor
+    const userId = req.user.id; // El id lo entrega el tokenExtractor
     if (!userId || !month || !year || !lowDescription) {
       return res.status(400).json({ error: 'usuario, mes, año y descripción son requeridos' });
     }

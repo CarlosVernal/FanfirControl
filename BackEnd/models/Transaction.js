@@ -9,8 +9,8 @@ const TransactionSchema = new Schema({
   categories: { type: Schema.Types.ObjectId, ref: 'Category', default: null },
   isRecurrent: { type: Boolean, default: false },
   recurrenceFrequency: { type: String, enum: ['monthly', 'yearly', null], default: null },
-  installments: { type: Number, default: 1 },
-  installmentsPaid: { type: Number, default: 0 },
+  installments: { type: Number, default: 1 }, //cuotas
+  installmentsPaid: { type: Number, default: 0 }, //cuotas pagadas
   createdAt: { type: Date, default: Date.now },
 });
 
