@@ -2,6 +2,7 @@ import express from "express";
 import * as uC from "../controllers/usersController.js";
 import * as uV from "../validators/userValidations.js";
 import tokenExtractor from "../middleware/tokenExtractor.js";
+import { handleValidationErrors } from "../middleware/ValidationErrorHandle.js";
 
 const router = express.Router();
 
@@ -9,8 +10,8 @@ const router = express.Router();
 router.use(tokenExtractor);
 
 // router.get("/", uC.getUsers); esta ruta sera implementada cuando exista el rol de administrador
-router.put("/:id", uV.updateUserValidation, uC.updateUser);
-router.delete("/:id", uV.deleteUserValidation, uC.deleteUser);
-router.get("/:id", uV.getUserByIdValidation, uC.getUserById);
+router.put("/:id", uV.updateUserValidation, handleValidationErrors, uC.updateUser);
+router.delete("/:id", uV.deleteUserValidation, handleValidationErrors, uC.deleteUser);
+router.get("/:id", uV.getUserByIdValidation, handleValidationErrors, uC.getUserById);
 
 export default router;
