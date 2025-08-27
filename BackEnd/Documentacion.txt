@@ -1,0 +1,316 @@
+# Documentación Backend - FafnirControl
+
+## 📋 Descripción General
+
+FafnirControl es un backend para una aplicación de finanzas personales desarrollada con Node.js, Express y MongoDB. Permite a los usuarios gestionar sus ingresos, gastos, presupuestos, categorías y metas de ahorro de manera organizada y segura.
+
+## 🏗️ Arquitectura
+
+### Stack Tecnológico
+- **Node.js** + **Express**: Servidor backend (usando ES Modules)
+- **MongoDB** con **Mongoose**: Base de datos y ODM
+- **JWT**: Autenticación y autorización
+- **bcryptjs**: Cifrado de contraseñas
+- **CORS**: Políticas de origen cruzado
+- **dotenv**: Variables de entorno
+
+### Estructura del Proyecto
+```
+BackEnd/
+├── controllers/        # Lógica de negocio (ES Modules)
+│   ├── authController.js
+│   ├── budgetsController.js
+│   ├── CategoryController.js
+│   ├── mountReportConroler.js
+│   ├── savingGoalController.js
+│   ├── transactionController.js
+│   └── usersController.js
+├── middleware/         # Middlewares personalizados (ES Modules)
+│   ├── errorHandler.js
+│   ├── tokenExtractor.js
+│   └── ValidationErrorHandle.js
+├── models/            # Esquemas de MongoDB (ES Modules)
+│   ├── Budget.js
+│   ├── Category.js
+│   ├── MountsReport.js
+│   ├── SavingGoal.js
+│   ├── Transaction.js
+│   └── User.js
+├── routes/            # Definición de rutas (ES Modules)
+│   ├── auth.js
+│   ├── budgets.js
+│   ├── categorys.js
+│   ├── mountReports.js
+│   ├── transactions.js
+│   └── users.js
+├── validators/        # Validaciones con express-validator (ES Modules)
+│   ├── authValidations.js
+│   ├── budgetValidations.js
+│   ├── categoryValidations.js
+│   ├── commons.js
+│   ├── transactionValidations.js
+│   └── userValidations.js
+├── utils/             # Utilidades (ES Modules)
+│   ├── config.js
+│   └── mongo.js
+├── app.js             # Configuración de Express (ES Modules)
+├── index.js           # Punto de entrada (ES Modules)
+├── package.json       # Debe incluir "type": "module"
+└── .env               # Variables de entorno
+```
+
+## 🔧 Configuración ES Modules
+
+### package.json
+Asegurar que incluya:
+```json
+{
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+  }
+}
+```
+
+### Sintaxis de Importación/Exportación
+- **Importaciones**: `import Module from './path/module.js'`
+- **Exportaciones nombradas**: `export function functionName() {}`
+- **Exportaciones por defecto**: `export default variableName`
+- **Extensiones**: Todas las rutas deben incluir `.js`
+
+## 🔐 Autenticación y Seguridad
+
+### Sistema de Autenticación
+- **JWT Tokens**: Tokens con expiración de 1 hora
+- **bcryptjs**: Cifrado de contraseñas con salt rounds
+- **Middleware tokenExtractor**: Protege rutas sensibles
+- **Verificación de email**: Sistema de tokens para confirmar cuentas
+- **Recuperación de contraseña**: Tokens temporales para reset
+
+### Sistema de Validaciones
+- **express-validator**: Validación robusta de inputs
+- **ValidationErrorHandle**: Middleware centralizado para manejo de errores de validación
+- **Validaciones por recurso**: Archivos específicos por controlador
+- **Patrones reutilizables**: commons.js con validaciones compartidas
+
+### Variables de Entorno
+```env
+MONGODB_URI=mongodb+srv://...
+TEST_MONGODB_URI=mongodb+srv://...
+PORT=4000
+NODE_ENV=development
+SECRET=tu_clave_secreta_jwt
+```
+
+## 📊 Modelos de Datos
+
+### User (Usuario)
+- email, passwordHash, name, roles
+- isVerified, verificationToken
+- resetPasswordToken, resetPasswordExpires
+
+### Category (Categorías)
+- Sistema de categorías padre-hijo (máximo 1 nivel)
+- userId, name, parentCategoryId
+
+### Transaction (Transacciones)
+- Ingresos y gastos con amount (+/-)
+- Soporte para cuotas (installments) y cuotas pagadas (installmentsPaid)
+- Categorías por transacción con validación de pertenencia
+- Transacciones recurrentes (monthly, yearly)
+- Paginación, filtros avanzados y ordenamiento
+- Búsqueda por rango de fechas, montos, categorías y tipo
+
+### Budget (Presupuestos)
+- Presupuestos mensuales por usuario
+- Sistema de activación/desactivación
+- expectedIncome, expectedExpense
+
+### SavingGoal (Metas de Ahorro)
+- targetAmount, currentSavedAmount
+- fechas de inicio y objetivo
+
+### MountsReport (Reportes)
+- Reportes mensuales de ingresos/gastos
+- Asociados a presupuestos activos
+
+## 🛠️ APIs Principales
+
+### Autenticación (/api)
+- `POST /login` - Inicio de sesión
+- `POST /register` - Registro de usuario
+- `POST /verify-email` - Verificación de email
+- `POST /forgot-password` - Solicitar reset
+- `POST /reset-password` - Restablecer contraseña
+
+### Usuarios (/api/users)
+- CRUD completo para gestión de usuarios
+
+### Categorías (/api/category)
+- Gestión de categorías padre-hijo
+- Filtros por usuario y categoría padre
+
+### Transacciones (/api/transactions)
+- CRUD completo con validaciones robustas
+- Filtros avanzados: fechas, montos, categorías, tipo (ingreso/gasto)
+- Paginación con metadatos completos
+- Ordenamiento configurable (fecha, monto, descripción)
+- Soporte para cuotas y transacciones recurrentes
+- Búsqueda jerárquica (categorías padre incluyen hijas)
+
+### Presupuestos (/api/budgets)
+- Sistema de versionado (crear nuevo = desactivar anterior)
+- Activación de presupuestos antiguos
+
+### Reportes (/api/mounts)
+- Reportes con márgenes positivos/negativos
+- Filtros por fecha, usuario y margen
+
+## ⚠️ Problemas Identificados y Estado
+
+### ✅ Errores Críticos Resueltos
+1. **authController.js**: Convertido a ES Modules ✅
+2. **budgetsController.js**: Convertido a ES Modules ✅
+3. **CategoryController.js**: Convertido a ES Modules ✅
+4. **transactionController.js**: Mejorado con validaciones y funcionalidades avanzadas ✅
+5. **tokenExtractor.js**: Convertido a ES Modules ✅
+6. **errorHandler.js**: Convertido a ES Modules ✅
+7. **Sistema de validaciones**: Implementado con express-validator ✅
+8. **Middleware de validación**: ValidationErrorHandle.js implementado ✅
+
+### 🔧 Mejoras Recomendadas
+
+#### Generales
+- [ ] Imagen de usuario
+- [ ] Completar conversión de todos los archivos restantes a ES Modules
+
+#### Seguridad
+- [✅] Implementar rate limiting
+- [✅] Validar todos los inputs con express-validator
+- [✅] Middleware centralizado para errores de validación
+- [ ] Agregar helmet para headers de seguridad
+- [ ] Implementar CSRF protection
+
+#### Validaciones
+- [✅] Validar ObjectIds de MongoDB
+- [✅] Verificar permisos de usuario en todas las operaciones
+- [✅] Validar rangos de fechas y montos
+- [✅] Validaciones de relaciones (categorías, cuotas)
+- [ ] Validaciones para categorías y reportes (pendientes)
+
+#### Optimización
+- [ ] Agregar indices en MongoDB
+- [✅] Implementar paginación en listados
+- [✅] Filtros avanzados y ordenamiento
+- [ ] Cache para consultas frecuentes
+- [ ] Compresión de respuestas
+
+#### Código
+- [✅] Conversión a ES Modules
+- [✅] Estandarizar nombres (mountReportConroler → mountReportController)
+- [✅] Sistema de validaciones con express-validator
+- [✅] Middleware centralizado para manejo de errores
+- [✅] Funcionalidades avanzadas en transactionController
+- [ ] Agregar JSDoc para documentación
+- [ ] Implementar logging estructurado
+- [ ] Tests unitarios e integración
+
+#### Base de Datos
+- [✅] Agregar campo `margin` calculado en MountsReport
+- [ ] Implementar cascading delete para categorías
+- [ ] Optimizar queries con populate selectivo
+
+### 🧪 Testing con ES Modules
+```json
+{
+  "scripts": {
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+  },
+  "jest": {
+    "extensionsToTreatAsEsm": [".js"],
+    "globals": {
+      "ts-jest": {
+        "useESM": true
+      }
+    }
+  }
+}
+```
+
+### 📦 Dependencias para ES Modules
+```bash
+npm install helmet express-rate-limit express-validator
+npm install --save-dev jest supertest mongodb-memory-server
+```
+
+## 🎯 Patrones de Desarrollo
+
+### Estructura de Rutas
+```javascript
+// Patrón estándar para todas las rutas
+import express from "express";
+import * as controller from "../controllers/resourceController.js";
+import * as validators from "../validators/resourceValidations.js";
+import tokenExtractor from "../middleware/tokenExtractor.js";
+import { handleValidationErrors } from "../middleware/ValidationErrorHandle.js";
+
+const router = express.Router();
+
+// Middleware de autenticación (rutas protegidas)
+router.use(tokenExtractor);
+
+// Patrón: validación + manejo de errores + controller
+router.post("/", validators.createValidation, handleValidationErrors, controller.create);
+router.get("/", validators.getValidation, handleValidationErrors, controller.getAll);
+router.get("/:id", validators.getByIdValidation, handleValidationErrors, controller.getById);
+router.put("/:id", validators.updateValidation, handleValidationErrors, controller.update);
+router.delete("/:id", validators.deleteValidation, handleValidationErrors, controller.delete);
+
+export default router;
+```
+
+### Validaciones con express-validator
+```javascript
+// commons.js - Validaciones reutilizables
+export const emailCheck = body('email')
+    .isEmail().withMessage('El email no es válido').normalizeEmail()
+
+export const mongoIdCheck = param('id')
+    .exists().withMessage('El ID es obligatorio')
+    .isMongoId().withMessage('El ID debe ser un ObjectId válido')
+
+// resourceValidations.js - Validaciones específicas
+export const createResourceValidation = [
+    body("name").isString().isLength({ min: 3, max: 100 }),
+    body("amount").isNumeric().custom((value) => value !== 0)
+];
+```
+```json
+{
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+  }
+}
+```
+
+## 📝 Notas sobre ES Modules
+- Todas las rutas de importación deben incluir la extensión `.js`
+- `__dirname` y `__filename` no están disponibles, usar `import.meta.url`
+- Los tests requieren configuración especial para ES Modules
+- Compatibilidad con herramientas como nodemon y jest
+
+## 📝 Notas Adicionales
+- El proyecto está configurado para múltiples entornos (dev/test/prod)
+- Base de datos: FanfirDatabase (dev/prod), test (testing)
+- Arquitectura modular y escalable
+- Preparado para integración con frontend React
+- **Migrado completamente a ES Modules**
+
+---
+**Última actualización**: Agosto 2025
+**Versión**: 1.2.0 (ES Modules + Validaciones Completas)

@@ -17,3 +17,6 @@ router.get("/positive", mrc.getPositiveMountsReports);
 router.get("/negative", mrc.getNegativeMountsReports);
 
 export default router;
+
+//TODO: Revisar rutas
+//TODO: agregar middleware de validacion de datos

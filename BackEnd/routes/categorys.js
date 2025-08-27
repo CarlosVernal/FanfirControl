@@ -16,3 +16,5 @@ router.get("/user/:userId", cc.getCategoriesByUserId);
 router.get("/parent/:parentCategoryId", cc.getCategoriesByParentCategoryId);
 
 export default router;
+
+//TODO: agregar validaciones y middleware de validaciones
