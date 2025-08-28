@@ -20,7 +20,3 @@ export const nameCheck = body('name')
 
 export const tokenCheck = body('token')
     .notEmpty().withMessage('El token es requerido')
-
-export const mongoIdCheck = param('id')
-    .exists().withMessage('El ID es obligatorio')
-    .isMongoId().withMessage('El ID debe ser un ObjectId válido')

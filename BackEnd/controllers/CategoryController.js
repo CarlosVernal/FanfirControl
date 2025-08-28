@@ -1,13 +1,16 @@
 import Category from "../models/Category.js";
-import User from "../models/User.js";
 import Transaction from "../models/Transaction.js";
 import mongoose from "mongoose";
+import { validateAuthenticatedUser } from "../utils/authUtils.js";
 
 export async function createCategory(req, res, next) {
     try {
-        const { userId, name, parentCategoryId } = req.body;
-        if (!userId || !name) {
-            return res.status(400).json({ error: "userId y name son requeridos" });
+        const userId = validateAuthenticatedUser(req, res);
+        if (!userId) return; 
+        
+        const { name, parentCategoryId } = req.body;
+        if (!name) {
+            return res.status(400).json({ error: "name es requerido" });
         }
         // Limitacion de un nivel en las categorias
         if (parentCategoryId) {
@@ -39,10 +42,8 @@ export async function deleteCategory(req, res, next) {
 
     try {
         // Verifica permisos
-        const userId = req.user.id;
-        if (!userId) {
-            return res.status(403).json({ error: "No tienes permiso para realizar esta acción" });
-        }
+        const userId = validateAuthenticatedUser(req, res);
+        if (!userId) return;
 
         // Obtener la categoría a eliminar
         const category = await Category.findById(req.params.id);
@@ -104,11 +105,10 @@ export async function updateCategory(req, res, next) {
     session.startTransaction();
     try {
         // Verifica permisos
-        const userId = req.user.id;
+        const userId = validateAuthenticatedUser(req, res);
+        if (!userId) return;
+        
         const { parentCategoryId, name } = req.body;
-        if (!userId) {
-            return res.status(403).json({ error: "No tienes permiso para realizar esta acción" });
-        }
         // Obtener la categoría a actualizar
         const updateCategory = await Category.findById(req.params.id);
         if (!updateCategory) {
@@ -171,10 +171,9 @@ export async function updateCategory(req, res, next) {
 
 export async function getCategories(req, res, next) {
     try {
-        const userId = req.user.id;
-        if (!userId) {
-            return res.status(403).json({ error: "No tienes permiso para realizar esta acción" });
-        }
+        const userId = validateAuthenticatedUser(req, res);
+        if (!userId) return;
+        
         const categories = await Category.find({ userId });
         res.status(200).json(categories);
     } catch (error) {
@@ -184,10 +183,8 @@ export async function getCategories(req, res, next) {
 
 export async function getCategoryById(req, res, next) {
     try {
-        const userId = req.user.id;
-        if (!userId) {
-            return res.status(403).json({ error: "No tienes permiso para realizar esta acción" });
-        }
+        const userId = validateAuthenticatedUser(req, res);
+        if (!userId) return;
 
         const category = await Category.findOne({ _id: req.params.id, userId });
         if (!category) {
@@ -219,10 +216,8 @@ export async function getCategoryById(req, res, next) {
 
 export async function getCategoriesByParentCategoryId(req, res, next) {
     try {
-        const userId = req.user.id;
-        if (!userId) {
-            return res.status(403).json({ error: "No tienes permiso para realizar esta acción" });
-        }
+        const userId = validateAuthenticatedUser(req, res);
+        if (!userId) return;
         
         const categories = await Category.find({ parentCategoryId: req.params.parentCategoryId, userId });
         // Si no encuentra find devuelve un [] (array vacio de largo 0)

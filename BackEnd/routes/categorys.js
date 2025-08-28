@@ -1,19 +1,20 @@
 import express from "express";
 import * as cc from "../controllers/CategoryController.js";
+import * as cv from "../validators/categoryValidations.js";
 import tokenExtractor from "../middleware/tokenExtractor.js";
+import { handleValidationErrors } from "../middleware/ValidationErrorHandle.js";
 
 const router = express.Router();
 
-//middleware
+// Middleware de autenticación global
 router.use(tokenExtractor);
 
-router.post("/", cc.createCategory);
-router.get("/", cc.getCategories);
-router.get("/:id", cc.getCategoryById);
-router.put("/:id", cc.updateCategory);
-router.delete("/:id", cc.deleteCategory);
-router.get("/user/:userId", cc.getCategoriesByUserId);
-router.get("/parent/:parentCategoryId", cc.getCategoriesByParentCategoryId);
+router.post("/", cv.createCategoryValidation, handleValidationErrors, cc.createCategory);
+router.get("/", cc.getCategories); 
+router.get("/:id", cv.getCategoryByIdValidation, handleValidationErrors, cc.getCategoryById);
+router.put("/:id", cv.updateCategoryValidation, handleValidationErrors, cc.updateCategory);
+router.delete("/:id", cv.deleteCategoryValidation, handleValidationErrors, cc.deleteCategory);
+router.get("/parent/:parentCategoryId", cv.getCategoriesByParentValidation, handleValidationErrors, cc.getCategoriesByParentCategoryId);
 
 export default router;
 
