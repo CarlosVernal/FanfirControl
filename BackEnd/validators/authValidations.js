@@ -1,4 +1,4 @@
-import { check } from "express-validator"
+import { body } from "express-validator"
 import { emailCheck, passwordCheck, tokenCheck, nameCheck } from "./commons.js"
 
 export const loginValidation = [
@@ -21,7 +21,7 @@ export const forgotPasswordValidation = [
 
 export const resetPasswordValidation = [
     tokenCheck,
-    check('newPassword')
+    body('newPassword')
         .notEmpty().withMessage('La nueva contraseña no puede estar vacía')
         .isLength({ min: 6 }).withMessage('La nueva contraseña debe tener al menos 6 caracteres')
         .isLength({ max: 128 }).withMessage('La nueva contraseña no puede tener más de 128 caracteres')

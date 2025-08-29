@@ -1,12 +1,12 @@
 import { body, query } from "express-validator";
-import { tokenCheck, mongoIdCheck } from "./commons";
+import { tokenCheck, mongoIdCheck } from "./commons.js";
 
 export const createBudgetValidation = [
   tokenCheck,
   body("description")
     .isString()
     .withMessage("Description must be a string")
-    .length({ min: 5, max: 100 })
+    .isLength({ min: 5, max: 100 })
     .withMessage("Description must be between 5 and 100 characters")
     .custom((value)=> value.trim() !== "").withMessage("Description must not be empty"),
   body("month")
@@ -61,7 +61,7 @@ export const updateBudgetValidation = [
   body("description")
     .isString()
     .withMessage("Description must be a string")
-    .length({ min: 5, max: 100 })
+    .isLength({ min: 5, max: 100 })
     .withMessage("Description must be between 5 and 100 characters"),
   body("month")
     .isNumeric()

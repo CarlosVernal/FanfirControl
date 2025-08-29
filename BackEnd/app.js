@@ -13,6 +13,7 @@ import budgetsRouter from "./routes/budgets.js";
 import categoryRouter from "./routes/categorys.js";
 import mountsReportRouter from "./routes/mountReports.js";
 import transactionRouter from "./routes/transactions.js";
+import savingGoalsRouter from "./routes/savingGoals.js";
 
 // use express to create a server
 const app = express();
@@ -34,6 +35,7 @@ app.use("/api/budgets", budgetsRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/mounts", mountsReportRouter);
 app.use("/api/transactions", transactionRouter);
+app.use("/api/saving-goals", savingGoalsRouter);
 
 //testing routes in test environment
 if (process.env.NODE_ENV === "test") {

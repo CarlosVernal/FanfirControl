@@ -10,12 +10,10 @@ const router = express.Router();
 router.use(tokenExtractor);
 
 router.post("/", cv.createCategoryValidation, handleValidationErrors, cc.createCategory);
-router.get("/", cc.getCategories); 
+router.get("/", cv.getCategoriesValidation, handleValidationErrors, cc.getCategories); 
 router.get("/:id", cv.getCategoryByIdValidation, handleValidationErrors, cc.getCategoryById);
 router.put("/:id", cv.updateCategoryValidation, handleValidationErrors, cc.updateCategory);
 router.delete("/:id", cv.deleteCategoryValidation, handleValidationErrors, cc.deleteCategory);
 router.get("/parent/:parentCategoryId", cv.getCategoriesByParentValidation, handleValidationErrors, cc.getCategoriesByParentCategoryId);
 
 export default router;
-
-//TODO: agregar validaciones y middleware de validaciones
