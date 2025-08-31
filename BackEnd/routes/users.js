@@ -10,8 +10,8 @@ const router = express.Router();
 router.use(tokenExtractor);
 
 // router.get("/", uC.getUsers); esta ruta sera implementada cuando exista el rol de administrador
-router.put("/:id", uV.updateUserValidation, handleValidationErrors, uC.updateUser);
-router.delete("/:id", uV.deleteUserValidation, handleValidationErrors, uC.deleteUser);
-router.get("/:id", uV.getUserByIdValidation, handleValidationErrors, uC.getUserById);
+router.put("/me", uV.updateUserValidation, handleValidationErrors, uC.updateUser);
+router.delete("/me", uV.deleteUserValidation, handleValidationErrors, uC.deleteUser);
+router.get("/me", uV.getUserByIdValidation, handleValidationErrors, uC.getUserById);
 
 export default router;

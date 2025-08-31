@@ -1,3 +1,4 @@
+//TODO_ Revisar todas las rutas porque se elimino el id del usuario de los parametros
 import express from "express";
 import * as bC from "../controllers/budgetsController.js";
 import tokenExtractor from "../middleware/tokenExtractor.js";

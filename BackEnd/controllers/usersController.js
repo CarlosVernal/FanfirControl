@@ -1,5 +1,7 @@
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
+import validateAuthenticatedUser from "../utils/authUtils.js";
+// la creacion de usuario esta en authController.js
 
 //Esta funcion sera implementada cuando exista el rol de administrador
 // export async function getUsers(req, res, next) {
@@ -13,12 +15,8 @@ import User from "../models/User.js";
 
 export async function updateUser(req, res, next) {
   try {
-    const { id } = req.params;
+    const userId = validateAuthenticatedUser(req, res);
     const { name, password } = req.body;
-
-    if (!req.user || req.user.id !== id) {
-      return res.status(403).json({ error: "No tienes permiso para realizar esta acción" });
-    }
 
     // Validate request body
     if (!name && !password) {
@@ -26,7 +24,7 @@ export async function updateUser(req, res, next) {
     }
 
     // Find user by ID
-    const user = await User.findById(id);
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -45,14 +43,9 @@ export async function updateUser(req, res, next) {
 
 export async function deleteUser(req, res, next) {
   try {
-    const { id } = req.params;
+    const userId = validateAuthenticatedUser(req, res);
 
-    // Verifica que el usuario autenticado coincide con el usuario a eliminar
-    if (!req.user || req.user.id !== id) {
-      return res.status(403).json({ error: "No tienes permiso para eliminar este usuario" });
-    }
-
-    const deletedUser = await User.findByIdAndDelete(id);
+    const deletedUser = await User.findByIdAndDelete(userId);
 
     if (!deletedUser) {
       return res.status(404).json({ error: "User not found" });
@@ -66,13 +59,9 @@ export async function deleteUser(req, res, next) {
 
 export async function getUserById(req, res, next) {
   try {
-    const { id } = req.params;
+    const userId = validateAuthenticatedUser(req, res);
 
-    if(!req.user || req.user.id !== id) {
-      return res.status(403).json({ error: "No tienes permiso para ver este usuario" });
-    }
-
-    const user = await User.findById(id);
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }

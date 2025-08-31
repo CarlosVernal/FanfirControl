@@ -1,14 +1,15 @@
+//TODO_ revisar todas las validaciones para mantener el patron del restos (tambien falta users)
 import Transaction from "../models/Transaction.js";
 import Category from "../models/Category.js";
-
+import validateAuthenticatedUser from "../utils/authUtils.js";
 export async function createTransaction(req, res, next) {
     try {
-        const userId = req.user.id;
+        const userId = validateAuthenticatedUser(req, res);
         const { 
             description, 
             amount, 
             date, 
-            categories, //id
+            categoryId,
             isRecurrent, 
             recurrenceFrequency, 
             installments,
@@ -30,8 +31,8 @@ export async function createTransaction(req, res, next) {
         }
 
         // Validar que la categoría existe y pertenece al usuario
-        if (categories) {
-            const category = await Category.findOne({ _id: categories, userId });
+        if (categoryId) {
+            const category = await Category.findOne({ _id: categoryId, userId });
             if (!category) {
                 return res.status(400).json({ 
                     error: "La categoría no existe o no tienes permiso para usarla" 
@@ -44,7 +45,7 @@ export async function createTransaction(req, res, next) {
             description: description.trim(),
             amount,
             date,
-            categories: categories || null,
+            categoryId: categoryId || null,
             isRecurrent: isRecurrent || false,
             recurrenceFrequency: recurrenceFrequency || null,
             installments: installments || 1,
@@ -60,8 +61,7 @@ export async function createTransaction(req, res, next) {
 
 export async function getTransactions(req, res, next) {
   try {
-    const userId = req.user.id;
-    
+    const userId = validateAuthenticatedUser(req, res);
     // Extraer parámetros de query con valores por defecto
     const { 
       startDate, 
@@ -171,9 +171,10 @@ export async function getTransactions(req, res, next) {
 
 export async function getTransactionById(req, res, next) {
     try {
-        const userId = req.user.id;
-        
-        const transaction = await Transaction.findOne({ _id: req.params.id, userId })
+        const userId = validateAuthenticatedUser(req, res);
+        const transactionId = req.params.id;
+
+        const transaction = await Transaction.findOne({ _id: transactionId, userId })
             .populate('categories', 'name parentCategoryId');
             
         if (!transaction) {
@@ -188,12 +189,14 @@ export async function getTransactionById(req, res, next) {
 
 export async function updateTransaction(req, res, next) {
   try {
-    const userId = req.user.id;
+    const userId = validateAuthenticatedUser(req, res);
+    const transactionId = req.params.id;
+
     const { 
       description, 
       amount, 
       date, 
-      categories, 
+      categoryId, 
       isRecurrent, 
       recurrenceFrequency, 
       installments,
@@ -201,7 +204,7 @@ export async function updateTransaction(req, res, next) {
     } = req.body;
 
     // Validar que la transacción existe y pertenece al usuario
-    const existingTransaction = await Transaction.findOne({ _id: req.params.id, userId });
+    const existingTransaction = await Transaction.findOne({ _id: transactionId, userId });
     if (!existingTransaction) {
       return res.status(404).json({ error: "Transacción no encontrada" });
     }
@@ -224,11 +227,11 @@ export async function updateTransaction(req, res, next) {
     }
 
     // Validar que la categoría existe y pertenece al usuario
-    if (categories) {
-      const category = await Category.findOne({ _id: categories, userId });
+    if (categoryId) {
+      const category = await Category.findOne({ _id: categoryId, userId });
       if (!category) {
         return res.status(400).json({ 
-          error: "La categoría no existe o no tienes permiso para usarla" 
+          error: "La categoría no existe" 
         });
       }
     }
@@ -238,14 +241,14 @@ export async function updateTransaction(req, res, next) {
     if (description !== undefined) updateFields.description = description.trim();
     if (amount !== undefined) updateFields.amount = amount;
     if (date !== undefined) updateFields.date = date;
-    if (categories !== undefined) updateFields.categories = categories;
+    if (categoryId !== undefined) updateFields.categoryId = categoryId;
     if (isRecurrent !== undefined) updateFields.isRecurrent = isRecurrent;
     if (recurrenceFrequency !== undefined) updateFields.recurrenceFrequency = recurrenceFrequency;
     if (installments !== undefined) updateFields.installments = installments;
     if (installmentsPaid !== undefined) updateFields.installmentsPaid = installmentsPaid;
 
     const transaction = await Transaction.findOneAndUpdate(
-      { _id: req.params.id, userId },
+      { _id: transactionId, userId },
       { $set: updateFields },
       { new: true }
     ).populate('categories', 'name parentCategoryId');
@@ -259,9 +262,10 @@ export async function updateTransaction(req, res, next) {
 
 export async function deleteTransaction(req, res, next) {
     try {
-        const userId = req.user.id;
+        const userId = validateAuthenticatedUser(req, res);
+        const transactionId = req.params.id;
 
-        const transaction = await Transaction.findOneAndDelete({ _id: req.params.id, userId });
+        const transaction = await Transaction.findOneAndDelete({ _id: transactionId, userId });
         if (!transaction) {
             return res.status(404).json({ error: "Transacción no encontrada" });
         }

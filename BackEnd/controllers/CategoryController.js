@@ -1,12 +1,11 @@
 import Category from "../models/Category.js";
 import Transaction from "../models/Transaction.js";
 import mongoose from "mongoose";
-import { validateAuthenticatedUser } from "../utils/authUtils.js";
+import validateAuthenticatedUser from "../utils/authUtils.js";
 
 export async function createCategory(req, res, next) {
     try {
         const userId = validateAuthenticatedUser(req, res);
-        if (!userId) return; 
         
         const { name, parentCategoryId } = req.body;
         if (!name) {
@@ -43,7 +42,6 @@ export async function deleteCategory(req, res, next) {
     try {
         // Verifica permisos
         const userId = validateAuthenticatedUser(req, res);
-        if (!userId) return;
 
         // Obtener la categoría a eliminar
         const category = await Category.findById(req.params.id);
@@ -57,7 +55,7 @@ export async function deleteCategory(req, res, next) {
         }
 
         // Obtener todas las categorías hijas
-        const childrenCategories = await Category.find({ parentCategoryId: req.params.id });
+        const childrenCategories = await Category.find({ parentCategoryId: req.params.id , userId });
 
         // Concatenar las id's de categoría y sus hijos
         const categoryFamily = [category._id, ...childrenCategories.map(cat => cat._id)];
@@ -106,7 +104,6 @@ export async function updateCategory(req, res, next) {
     try {
         // Verifica permisos
         const userId = validateAuthenticatedUser(req, res);
-        if (!userId) return;
         
         const { parentCategoryId, name } = req.body;
         // Obtener la categoría a actualizar
@@ -118,7 +115,6 @@ export async function updateCategory(req, res, next) {
         if (updateCategory.userId.toString() !== userId) {
             return res.status(403).json({ error: "No tienes permiso para modificar esta categoría" });
         }
-        
         // Actualiza el nombre si se proporciona
         if (name) {
             updateCategory.name = name;
@@ -130,18 +126,15 @@ export async function updateCategory(req, res, next) {
             updateCategory.parentCategoryId = null;
         } else if (parentCategoryId !== updateCategory.parentCategoryId?.toString()) {
             // Se quiere asignar un nuevo padre diferente al actual
-            
             // Verificar que no se esté estableciendo como padre a sí mismo
             if (parentCategoryId === req.params.id) {
                 return res.status(400).json({ error: "Una categoría no puede ser padre de sí misma" });
             }
-            
             // Verificar que no sea una de sus subcategorías
             const possibleDescendants = await Category.find({ parentCategoryId: req.params.id });
             if (possibleDescendants.some(desc => desc._id.toString() === parentCategoryId)) {
                 return res.status(400).json({ error: "No puedes asignar como padre a una subcategoría" });
             }
-            
             // Verificar que la categoría padre exista y no sea un hijo
             const parentCategory = await Category.findById(parentCategoryId);
             if (!parentCategory) {
@@ -150,17 +143,14 @@ export async function updateCategory(req, res, next) {
             if (parentCategory.parentCategoryId) {
                 return res.status(400).json({ error: "Solo se permite un nivel de categorías padre-hijo" });
             }
-            
             updateCategory.parentCategoryId = parentCategoryId;
         }
         // Si parentCategoryId es igual al valor actual, no se cambia el padre
-
         // Guardar los cambios
         const updatedCategory = await updateCategory.save({ session });
-        
         await session.commitTransaction();
         session.endSession();
-        
+
         res.status(200).json(updatedCategory);
     } catch (error) {
         await session.abortTransaction();
@@ -172,8 +162,7 @@ export async function updateCategory(req, res, next) {
 export async function getCategories(req, res, next) {
     try {
         const userId = validateAuthenticatedUser(req, res);
-        if (!userId) return;
-        
+
         const categories = await Category.find({ userId });
         res.status(200).json(categories);
     } catch (error) {
@@ -184,7 +173,6 @@ export async function getCategories(req, res, next) {
 export async function getCategoryById(req, res, next) {
     try {
         const userId = validateAuthenticatedUser(req, res);
-        if (!userId) return;
 
         const category = await Category.findOne({ _id: req.params.id, userId });
         if (!category) {
@@ -217,7 +205,6 @@ export async function getCategoryById(req, res, next) {
 export async function getCategoriesByParentCategoryId(req, res, next) {
     try {
         const userId = validateAuthenticatedUser(req, res);
-        if (!userId) return;
         
         const categories = await Category.find({ parentCategoryId: req.params.parentCategoryId, userId });
         // Si no encuentra find devuelve un [] (array vacio de largo 0)

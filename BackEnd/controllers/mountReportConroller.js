@@ -1,16 +1,18 @@
 import MountsReport from '../models/MountsReport.js';
 import Budget from '../models/Budget.js';
 import Transaction from '../models/Transaction.js';
-import { validateAuthenticatedUser } from '../utils/authUtils.js';
+import validateAuthenticatedUser from '../utils/authUtils.js';
 
-// AUTOMATIZADO: Solo para uso interno del sistema (cron job)
+// AUTOMATIZADO: Solo para uso interno del sistema (cron job por implementar)
+//una vez para cada usuario
 export async function createMonthlyReport(req, res, next) {
   try {
     const userId = validateAuthenticatedUser(req, res);
-    if (!userId) return;
 
     const { month, year } = req.body;
-
+    if (!month || !year) {
+        return res.status(400).json({ error: 'Mes y año son requeridos' });
+    }
     // Verificar si ya existe un reporte para este mes/año
     const existingReport = await MountsReport.findOne({ userId, month, year });
     if (existingReport) {
@@ -26,7 +28,6 @@ export async function createMonthlyReport(req, res, next) {
       year, 
       isActive: true 
     });
-
     if (!activeBudget) {
       return res.status(400).json({ 
         error: 'No hay presupuesto activo para este mes/año' 
@@ -74,7 +75,6 @@ export async function createMonthlyReport(req, res, next) {
 export async function getMountsReports(req, res, next) {
   try {
     const userId = validateAuthenticatedUser(req, res);
-    if (!userId) return;
 
     const { 
       startDate, 
@@ -145,11 +145,10 @@ export async function getMountsReports(req, res, next) {
 export async function getMountsReportsById(req, res, next) {
   try {
     const userId = validateAuthenticatedUser(req, res);
-    if (!userId) return;
 
-    const { id } = req.params;
+    const { categoryId } = req.params;
 
-    const report = await MountsReport.findOne({ _id: id, userId })
+    const report = await MountsReport.findOne({ _id: categoryId, userId })
       .populate('budgetId', 'name totalBudget categories');
 
     if (!report) {
@@ -209,7 +208,6 @@ export async function getMountsReportsById(req, res, next) {
 export async function deleteMountsReport(req, res, next) {
   try {
     const userId = validateAuthenticatedUser(req, res);
-    if (!userId) return;
 
     const { id } = req.params;
 

@@ -1,15 +1,14 @@
-import { nameCheck, passwordCheck, mongoIdCheck } from "./commons.js"
+import { nameCheck, passwordCheck } from "./commons.js"
 
 export const updateUserValidation = [
-    nameCheck,
-    passwordCheck,
-    mongoIdCheck
+    nameCheck.optional(),
+    passwordCheck.optional()
 ]
 
 export const deleteUserValidation = [
-    mongoIdCheck
+    // No necesita validaciones adicionales, el userId viene del token
 ]
 
 export const getUserByIdValidation = [
-    mongoIdCheck
+    // No necesita validaciones adicionales, el userId viene del token
 ]

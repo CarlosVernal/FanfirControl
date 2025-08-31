@@ -1,3 +1,4 @@
+//TODO_ Revisar todos los validators porque se quito la id del usuario de los parametros de las rutas
 import { body } from "express-validator"
 import { emailCheck, passwordCheck, tokenCheck, nameCheck } from "./commons.js"
 
