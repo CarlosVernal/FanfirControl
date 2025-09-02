@@ -1,79 +1,78 @@
-//TODO_ revisar todas las validaciones para mantener el patron del restos (tambien falta users)
 import Transaction from "../models/Transaction.js";
 import Category from "../models/Category.js";
 import validateAuthenticatedUser from "../utils/authUtils.js";
 export async function createTransaction(req, res, next) {
-    try {
-        const userId = validateAuthenticatedUser(req, res);
-        const { 
-            description, 
-            amount, 
-            date, 
-            categoryId,
-            isRecurrent, 
-            recurrenceFrequency, 
-            installments,
-            installmentsPaid 
-        } = req.body;
+  try {
+    const userId = validateAuthenticatedUser(req, res);
+    const {
+      description,
+      amount,
+      date,
+      categoryId,
+      isRecurrent,
+      recurrenceFrequency,
+      installments,
+      installmentsPaid
+    } = req.body;
 
-        // Validar que si es recurrente, tenga frecuencia
-        if (isRecurrent && !recurrenceFrequency) {
-            return res.status(400).json({ 
-                error: "Si la transacción es recurrente, debe especificar la frecuencia" 
-            });
-        }
-
-        // Validar que las cuotas pagadas no excedan las totales
-        if (installmentsPaid && installments && installmentsPaid > installments) {
-            return res.status(400).json({ 
-                error: "Las cuotas pagadas no pueden ser mayores a las cuotas totales" 
-            });
-        }
-
-        // Validar que la categoría existe y pertenece al usuario
-        if (categoryId) {
-            const category = await Category.findOne({ _id: categoryId, userId });
-            if (!category) {
-                return res.status(400).json({ 
-                    error: "La categoría no existe o no tienes permiso para usarla" 
-                });
-            }
-        }
-
-        const transaction = new Transaction({
-            userId,
-            description: description.trim(),
-            amount,
-            date,
-            categoryId: categoryId || null,
-            isRecurrent: isRecurrent || false,
-            recurrenceFrequency: recurrenceFrequency || null,
-            installments: installments || 1,
-            installmentsPaid: installmentsPaid || 0,
-        });
-
-        const savedTransaction = await transaction.save();
-        res.status(201).json(savedTransaction);
-    } catch (error) {
-        next(error);
+    // Validar que si es recurrente, tenga frecuencia
+    if (isRecurrent && !recurrenceFrequency) {
+      return res.status(400).json({
+        error: "Si la transacción es recurrente, debe especificar la frecuencia"
+      });
     }
+
+    // Validar que las cuotas pagadas no excedan las totales
+    if (installmentsPaid && installments && installmentsPaid > installments) {
+      return res.status(400).json({
+        error: "Las cuotas pagadas no pueden ser mayores a las cuotas totales"
+      });
+    }
+
+    // Validar que la categoría existe y pertenece al usuario
+    if (categoryId) {
+      const category = await Category.findOne({ _id: categoryId, userId });
+      if (!category) {
+        return res.status(400).json({
+          error: "La categoría no existe o no tienes permiso para usarla"
+        });
+      }
+    }
+
+    const transaction = new Transaction({
+      userId,
+      description: description.trim(),
+      amount,
+      date,
+      categoryId: categoryId || null,
+      isRecurrent: isRecurrent || false,
+      recurrenceFrequency: recurrenceFrequency || null,
+      installments: installments || 1,
+      installmentsPaid: installmentsPaid || 0,
+    });
+
+    const savedTransaction = await transaction.save();
+    res.status(201).json(savedTransaction);
+  } catch (error) {
+    next(error);
+  }
 };
 
 export async function getTransactions(req, res, next) {
   try {
     const userId = validateAuthenticatedUser(req, res);
     // Extraer parámetros de query con valores por defecto
-    const { 
-      startDate, 
-      endDate, 
-      startAmount, 
-      endAmount, 
-      categoryId, 
+    const {
+      startDate,
+      endDate,
+      startAmount,
+      endAmount,
+      categoryId,
       type,
-      page = 1, 
-      limit = 20, 
-      sortBy = 'date', 
-      sortOrder = 'desc' 
+      page = 1,
+      limit = 20,
+      sortBy = 'date',
+      sortOrder = 'desc'
     } = req.query;
 
     // Construir filtro base
@@ -98,22 +97,27 @@ export async function getTransactions(req, res, next) {
       // Verificar si la categoría existe y pertenece al usuario
       const category = await Category.findOne({ _id: categoryId, userId });
       if (!category) {
-        return res.status(400).json({ 
-          error: "La categoría no existe o no tienes permiso para usarla" 
+        return res.status(400).json({
+          error: "La categoría no existe o no tienes permiso para usarla"
         });
       }
 
       // Si es categoría padre (no tiene parentCategoryId), incluir también sus hijas
       if (!category.parentCategoryId) {
         // Buscar todas las categorías hijas de esta categoría padre
-        const childCategories = await Category.find({ 
-          parentCategoryId: categoryId, 
-          userId 
+        const childCategories = await Category.find({
+          parentCategoryId: categoryId,
+          userId
         });
-        
-        // Crear array con la categoría padre y todas sus hijas
-        const categoryIds = [categoryId, ...childCategories.map(child => child._id)];
-        filter.categories = { $in: categoryIds };
+        //si no tiene categorias hijas
+        if (childCategories.length === 0) {
+          // No tiene categorías hijas, buscar por la categoría padre
+          filter.categories = categoryId;
+        } else {
+          // Crear array con la categoría padre y todas sus hijas
+          const categoryIds = [categoryId, ...childCategories.map(child => child._id)];
+          filter.categories = { $in: categoryIds };
+        }
       } else {
         // Si es categoría hija, solo buscar por esa categoría específica
         filter.categories = categoryId;
@@ -170,90 +174,108 @@ export async function getTransactions(req, res, next) {
 }
 
 export async function getTransactionById(req, res, next) {
-    try {
-        const userId = validateAuthenticatedUser(req, res);
-        const transactionId = req.params.id;
+  try {
+    const userId = validateAuthenticatedUser(req, res);
+    const transactionId = req.params.id;
 
-        const transaction = await Transaction.findOne({ _id: transactionId, userId })
-            .populate('categories', 'name parentCategoryId');
-            
-        if (!transaction) {
-            return res.status(404).json({ error: "Transacción no encontrada" });
-        }
-        
-        res.status(200).json(transaction);
-    } catch (error) {
-        next(error);
+    const transaction = await Transaction.findOne({ _id: transactionId, userId })
+      .populate('categories', 'name parentCategoryId');
+
+    if (!transaction) {
+      return res.status(404).json({ error: "Transacción no encontrada" });
     }
+    res.status(200).json(transaction);
+  } catch (error) {
+    next(error);
+  }
 };
 
+// Controlador para actualizar una transacción existente
+// Permite actualización parcial con validaciones completas
 export async function updateTransaction(req, res, next) {
   try {
     const userId = validateAuthenticatedUser(req, res);
     const transactionId = req.params.id;
 
-    const { 
-      description, 
-      amount, 
-      date, 
-      categoryId, 
-      isRecurrent, 
-      recurrenceFrequency, 
+    const {
+      description,
+      amount,
+      date,
+      categoryId,
+      isRecurrent,
+      recurrenceFrequency,
       installments,
-      installmentsPaid 
+      installmentsPaid
     } = req.body;
 
-    // Validar que la transacción existe y pertenece al usuario
     const existingTransaction = await Transaction.findOne({ _id: transactionId, userId });
     if (!existingTransaction) {
       return res.status(404).json({ error: "Transacción no encontrada" });
     }
 
-    // Validar que si es recurrente, tenga frecuencia
+
+    // 1. Validar que si es recurrente, tenga frecuencia
+    // Solo validar si isRecurrent se está actualizando a true
     if (isRecurrent !== undefined && isRecurrent && !recurrenceFrequency) {
-      return res.status(400).json({ 
-        error: "Si la transacción es recurrente, debe especificar la frecuencia" 
+      return res.status(400).json({
+        error: "Si la transacción es recurrente, debe especificar la frecuencia"
       });
     }
 
-    // Validar que las cuotas pagadas no excedan las totales
+    // 2. Validar que las cuotas pagadas no excedan las totales
+    // Usar valores finales (combinando existentes con nuevos)
     const finalInstallments = installments !== undefined ? installments : existingTransaction.installments;
     const finalInstallmentsPaid = installmentsPaid !== undefined ? installmentsPaid : existingTransaction.installmentsPaid;
-    
+
     if (finalInstallmentsPaid > finalInstallments) {
-      return res.status(400).json({ 
-        error: "Las cuotas pagadas no pueden ser mayores a las cuotas totales" 
+      return res.status(400).json({
+        error: "Las cuotas pagadas no pueden ser mayores a las cuotas totales"
       });
     }
 
-    // Validar que la categoría existe y pertenece al usuario
-    if (categoryId) {
+    // Validar que la categoría existe y pertenece al usuario (solo si se proporciona)
+    if (categoryId !== undefined && categoryId !== null) {
       const category = await Category.findOne({ _id: categoryId, userId });
       if (!category) {
-        return res.status(400).json({ 
-          error: "La categoría no existe" 
+        return res.status(400).json({
+          error: "La categoría no existe o no tienes permiso para usarla"
         });
       }
+
+      const updateFields = {};
+
+      if (description !== undefined) updateFields.description = description.trim();
+      if (amount !== undefined) updateFields.amount = amount;
+      if (date !== undefined) updateFields.date = date;
+
+      if (categoryId !== undefined) {
+        updateFields.categoryId = categoryId || null;
+      }
+
+      if (isRecurrent !== undefined) updateFields.isRecurrent = isRecurrent;
+
+      // Manejar recurrenceFrequency: si isRecurrent es false, debe ser null
+      if (recurrenceFrequency !== undefined) {
+        updateFields.recurrenceFrequency = recurrenceFrequency || null;
+      }
+
+      // Si se está actualizando isRecurrent a false, limpiar recurrenceFrequency
+      if (isRecurrent === false) {
+        updateFields.recurrenceFrequency = null;
+      }
+
+      if (installments !== undefined) updateFields.installments = installments;
+      if (installmentsPaid !== undefined) updateFields.installmentsPaid = installmentsPaid;
+
+      // === ACTUALIZACIÓN EN BASE DE DATOS ===
+      const transaction = await Transaction.findOneAndUpdate(
+        { _id: transactionId, userId },  // Filtro: buscar por ID y usuario
+        { $set: updateFields },          // Actualizar solo los campos especificados
+        { new: true }                    // Devolver el documento actualizado
+      ).populate('categoryId', 'name parentCategoryId'); // Incluir datos de la categoría
+
+      res.status(200).json(transaction);
     }
-
-    // Construir el objeto de actualización dinámicamente
-    const updateFields = {};
-    if (description !== undefined) updateFields.description = description.trim();
-    if (amount !== undefined) updateFields.amount = amount;
-    if (date !== undefined) updateFields.date = date;
-    if (categoryId !== undefined) updateFields.categoryId = categoryId;
-    if (isRecurrent !== undefined) updateFields.isRecurrent = isRecurrent;
-    if (recurrenceFrequency !== undefined) updateFields.recurrenceFrequency = recurrenceFrequency;
-    if (installments !== undefined) updateFields.installments = installments;
-    if (installmentsPaid !== undefined) updateFields.installmentsPaid = installmentsPaid;
-
-    const transaction = await Transaction.findOneAndUpdate(
-      { _id: transactionId, userId },
-      { $set: updateFields },
-      { new: true }
-    ).populate('categories', 'name parentCategoryId');
-
-    res.status(200).json(transaction);
   } catch (error) {
     next(error);
   }
@@ -261,17 +283,17 @@ export async function updateTransaction(req, res, next) {
 
 
 export async function deleteTransaction(req, res, next) {
-    try {
-        const userId = validateAuthenticatedUser(req, res);
-        const transactionId = req.params.id;
+  try {
+    const userId = validateAuthenticatedUser(req, res);
+    const transactionId = req.params.id;
 
-        const transaction = await Transaction.findOneAndDelete({ _id: transactionId, userId });
-        if (!transaction) {
-            return res.status(404).json({ error: "Transacción no encontrada" });
-        }
-        
-        res.status(204).send();
-    } catch (error) {
-        next(error);
+    const transaction = await Transaction.findOneAndDelete({ _id: transactionId, userId });
+    if (!transaction) {
+      return res.status(404).json({ error: "Transacción no encontrada" });
     }
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
 };
